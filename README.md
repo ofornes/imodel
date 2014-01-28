@@ -1,12 +1,14 @@
 IModel
 ======
 
-A little framework to create, dinamically, class implementations from beans definitions interfaces.
+A little framework of utilities for beans dynamic implementations.
+
+Enables data definition as JavaBean applying the "facade pattern".
 
 Use
 ---
 
-First of all, you should define your model:
+First of all, should to define the model:
 
     :::java
         public interface IModel extends Serializable, Cloneable
@@ -22,7 +24,7 @@ First of all, you should define your model:
                 /** Last name */
                 public String getLasName();
 
-After, use the proxy to get a class implementation on-the-fly
+Next, create an implementation class with the Proxy utility:
 
     :::java
         IModel m;
@@ -33,10 +35,12 @@ After, use the proxy to get a class implementation on-the-fly
         m.setName("Name");
         m.setLasName("Last name");
 
-The class implementation puts equals, hasCode, toString methods. Also, if specified,
-puts the methods to clone (if extends Cloneable).
+Features
+--------
 
-Is serializable-safe, because implement the seralize and deseralize methods to ensure
-the recreation of de dinamyc class on destination
+* Implement getters and setters as declared on interface
+* Implement equals, hashCode and toString default methods
+* The proxy can be serialized safely; only errors if some java bean property was defined as non-serializable
+* Also implement a clone method if the model extends Cloneable interface
 
 
