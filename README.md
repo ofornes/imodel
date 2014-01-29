@@ -41,8 +41,8 @@ Features
 --------
 
 * Implement getters and setters as declared on interface
-* Implement equals, hashCode and toString default methods
-* The proxy can be serialized safely; only errors if some java bean property was defined as non-serializable
-* Also implement a clone method if the model extends Cloneable interface
+* Implement **equals**, **hashCode** and **toString** default methods
+* The proxy can be serialized safely; only errors if some java bean property type is non-serializable
+* Also implement a **clone** method if the model extends Cloneable interface
 
 

@@ -20,6 +20,8 @@ package cat.fornes.imodel;
 
 
 /**
+ * Some utilities for {@link ProxyBeanFactory} and {@link ProxyBeanImpl} operations.
+ * 
  * @author octavi@fornes.cat
  * @since 0.0.1-SNAPSHOT
  */
