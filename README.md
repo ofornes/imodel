@@ -10,7 +10,7 @@ Use
 
 First of all, should to define the model:
 
-    :::java
+```java
         public interface IModel extends Serializable, Cloneable
         {
                 /** Internal ID, unique */
@@ -23,10 +23,11 @@ First of all, should to define the model:
                 public void setName(String name);
                 /** Last name */
                 public String getLasName();
+```
 
 Next, create an implementation class with the Proxy utility:
 
-    :::java
+```java
         IModel m;
 
         // Create a class implementation        
@@ -34,6 +35,7 @@ Next, create an implementation class with the Proxy utility:
         // Use it
         m.setName("Name");
         m.setLasName("Last name");
+```
 
 Features
 --------
