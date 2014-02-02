@@ -35,7 +35,7 @@ import java.lang.reflect.Proxy;
  * 
  * 
  * @author octavi@fornes.cat
- * @since 0.0.1-SNAPSHOT
+ * @since 1.0.0
  */
 public abstract class ProxyBeanFactory
 {

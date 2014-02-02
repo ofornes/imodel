@@ -25,7 +25,7 @@ import java.util.Date;
  * A model for test purposes.
  * 
  * @author octavi@fornes.cat
- * @since 0.0.1-SNAPSHOT
+ * @since 1.0.0
  */
 public interface IModel extends Serializable, Cloneable
 {
@@ -45,10 +45,10 @@ public interface IModel extends Serializable, Cloneable
 	public Date getBirthDate();
 	/** Birth date */
 	public void setBirthDate(Date birthDate);
-	/** Number of childs */
-	public int getNumberOfChilds();
-	/** Number of childs */
-	public void setNumberOfChilds(int numberOfChilds);
+	/** Number of children */
+	public int getNumberOfChildren();
+	/** Number of children */
+	public void setNumberOfChildren(int numberOfChildren);
 	/** The incoming for year */
 	public double getIncomingYear();
 	/** The incoming for year */

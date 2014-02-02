@@ -24,6 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Calendar;
+import java.util.Date;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,57 +34,121 @@ import cat.fornes.imodel.models.IModel;
 import cat.fornes.imodel.models.ModelImpl;
 
 /**
- * Test of {@link ProxyBeanImpl}
+ * Test of {@link ProxyBeanImpl}.
  * 
  * @author octavi@fornes.cat
- * @since 0.0.1-SNAPSHOT
+ * @since 1.0.0
  */
 public class ProxyBeanImplTest
 {
-	/** Test value for name */
+    /** Test value for id prop. */
+    private static final long ID_VALUE = 346112L;
+	/** Test value for name prop. */
 	private static final String NAME_VALUE = "NAME";
-	/** Test value for last name */
+	/** Test value for last name prop. */
 	private static final String LAST_NAME_VALUE = "LAST_NAME";
+	private static final Date BIRTHDATE_VALUE;
+    /** Test value for number of children prop. */
+	private static final int NUMBER_OF_CHILDREN_VALUE = 3;
+	/** Test value for incoming year prop. */
+	private static final double INCOMING_YEAR_VALUE = 32056.12D;
+	/** Test value for gender prop. */
+	private static final EGender GENDER_VALUE = EGender.Female;
+	/*
+	 * Initialize instance
+	 */
+	static 
+	{
+	    Calendar c;
+	    
+	    c = Calendar.getInstance();
+	    c.set(Calendar.YEAR, 1964);
+	    c.set(Calendar.MONTH, Calendar.NOVEMBER);
+	    c.set(Calendar.DATE, 10);
+	    c.set(Calendar.HOUR, 0);
+	    c.set(Calendar.MINUTE, 0);
+	    c.set(Calendar.SECOND, 0);
+	    c.set(Calendar.MILLISECOND, 0);
+	    BIRTHDATE_VALUE = c.getTime();
+	}
 	/**
 	 * Test the 'getters' and 'setters' features
 	 */
 	@Test public void testGettersSetters()
 	{
 		IModel m;
-		Calendar cal, cal1;
 		
 		m = ProxyBeanFactory.newProxy(IModel.class);
+		Assert.assertEquals(0L, m.getId());
 		Assert.assertNull(m.getName());
 		Assert.assertNull(m.getLasName());
 		Assert.assertNull(m.getBirthDate());
+        Assert.assertEquals(0,m.getNumberOfChildren());
+        Assert.assertEquals(0.0D,m.getIncomingYear(),0.0D);
 		Assert.assertNull(m.getGender());
+		
+		m.setId(ID_VALUE);
+        Assert.assertEquals(ID_VALUE, m.getId());
+        Assert.assertNull(m.getName());
+        Assert.assertNull(m.getLasName());
+        Assert.assertNull(m.getBirthDate());
+        Assert.assertEquals(0,m.getNumberOfChildren());
+        Assert.assertEquals(0.0D,m.getIncomingYear(),0.0D);
+        Assert.assertNull(m.getGender());
 		
 		m.setName(NAME_VALUE);
+        Assert.assertEquals(ID_VALUE, m.getId());
 		Assert.assertEquals(NAME_VALUE, m.getName());
-		Assert.assertNull(m.getLasName());
-		Assert.assertNull(m.getBirthDate());
-		Assert.assertNull(m.getGender());
+        Assert.assertNull(m.getLasName());
+        Assert.assertNull(m.getBirthDate());
+        Assert.assertEquals(0,m.getNumberOfChildren());
+        Assert.assertEquals(0.0D,m.getIncomingYear(),0.0D);
+        Assert.assertNull(m.getGender());
 		
 		m.setLasName(LAST_NAME_VALUE);
-		Assert.assertEquals(NAME_VALUE, m.getName());
-		Assert.assertEquals(LAST_NAME_VALUE, m.getLasName());
-		Assert.assertNull(m.getBirthDate());
-		Assert.assertNull(m.getGender());
+        Assert.assertEquals(ID_VALUE, m.getId());
+        Assert.assertEquals(NAME_VALUE, m.getName());
+        Assert.assertEquals(LAST_NAME_VALUE, m.getLasName());
+        Assert.assertNull(m.getBirthDate());
+        Assert.assertEquals(0,m.getNumberOfChildren());
+        Assert.assertEquals(0.0D,m.getIncomingYear(),0.0D);
+        Assert.assertNull(m.getGender());
 		
-		cal = Calendar.getInstance();
-		cal1 = Calendar.getInstance();
-		cal1.setTimeInMillis(cal.getTimeInMillis());
-		m.setBirthDate(cal.getTime());
-		Assert.assertEquals(NAME_VALUE, m.getName());
-		Assert.assertEquals(LAST_NAME_VALUE, m.getLasName());
-		Assert.assertEquals(cal1.getTime(), m.getBirthDate());
-		Assert.assertNull(m.getGender());
-		
-		m.setGender(EGender.Male);
-		Assert.assertEquals(NAME_VALUE, m.getName());
-		Assert.assertEquals(LAST_NAME_VALUE, m.getLasName());
-		Assert.assertEquals(cal1.getTime(), m.getBirthDate());
-		Assert.assertEquals(EGender.Male,m.getGender());
+		m.setBirthDate(BIRTHDATE_VALUE);
+        Assert.assertEquals(ID_VALUE, m.getId());
+        Assert.assertEquals(NAME_VALUE, m.getName());
+        Assert.assertEquals(LAST_NAME_VALUE, m.getLasName());
+		Assert.assertEquals(new Date(BIRTHDATE_VALUE.getTime()), m.getBirthDate());
+        Assert.assertEquals(0,m.getNumberOfChildren());
+        Assert.assertEquals(0.0D,m.getIncomingYear(),0.0D);
+        Assert.assertNull(m.getGender());
+
+        m.setNumberOfChildren(NUMBER_OF_CHILDREN_VALUE);
+        Assert.assertEquals(ID_VALUE, m.getId());
+        Assert.assertEquals(NAME_VALUE, m.getName());
+        Assert.assertEquals(LAST_NAME_VALUE, m.getLasName());
+        Assert.assertEquals(new Date(BIRTHDATE_VALUE.getTime()), m.getBirthDate());
+        Assert.assertEquals(NUMBER_OF_CHILDREN_VALUE,m.getNumberOfChildren());
+        Assert.assertEquals(0.0D,m.getIncomingYear(),0.0D);
+        Assert.assertNull(m.getGender());
+
+        m.setIncomingYear(INCOMING_YEAR_VALUE);
+        Assert.assertEquals(ID_VALUE, m.getId());
+        Assert.assertEquals(NAME_VALUE, m.getName());
+        Assert.assertEquals(LAST_NAME_VALUE, m.getLasName());
+        Assert.assertEquals(new Date(BIRTHDATE_VALUE.getTime()), m.getBirthDate());
+        Assert.assertEquals(NUMBER_OF_CHILDREN_VALUE,m.getNumberOfChildren());
+        Assert.assertEquals(INCOMING_YEAR_VALUE,m.getIncomingYear(),0.0D);
+        Assert.assertNull(m.getGender());
+        
+		m.setGender(GENDER_VALUE);
+        Assert.assertEquals(ID_VALUE, m.getId());
+        Assert.assertEquals(NAME_VALUE, m.getName());
+        Assert.assertEquals(LAST_NAME_VALUE, m.getLasName());
+        Assert.assertEquals(new Date(BIRTHDATE_VALUE.getTime()), m.getBirthDate());
+        Assert.assertEquals(NUMBER_OF_CHILDREN_VALUE,m.getNumberOfChildren());
+        Assert.assertEquals(INCOMING_YEAR_VALUE,m.getIncomingYear(),0.0D);
+		Assert.assertEquals(GENDER_VALUE,m.getGender());
 	}
 	/**
 	 * Test the 'clone' feature
@@ -91,15 +156,9 @@ public class ProxyBeanImplTest
 	@Test public void testClone()
 	{
 		IModel m1, m2;
-		Calendar cal;
 		
 		m1 = ProxyBeanFactory.newProxy(IModel.class);
-		
-		m1.setName(NAME_VALUE);
-		m1.setLasName(LAST_NAME_VALUE);
-		cal = Calendar.getInstance();
-		m1.setBirthDate(cal.getTime());
-		m1.setGender(EGender.Female);
+		assignValues(m1);
 		
 		m2 = m1.clone();
 		
@@ -111,16 +170,10 @@ public class ProxyBeanImplTest
 	@Test public void testHashCode()
 	{
 		IModel m1, m2;
-		Calendar cal;
 		int n;
 		
 		m1 = ProxyBeanFactory.newProxy(IModel.class);
-		
-		m1.setName(NAME_VALUE);
-		m1.setLasName(LAST_NAME_VALUE);
-		cal = Calendar.getInstance();
-		m1.setBirthDate(cal.getTime());
-		m1.setGender(EGender.Female);
+		assignValues(m1);
 		
 		m2 = m1.clone();
 
@@ -140,11 +193,11 @@ public class ProxyBeanImplTest
 		ByteArrayInputStream bais;
 		ObjectInputStream in;
 		
+		// Prepare bean
 		model = ProxyBeanFactory.newProxy(IModel.class);
-		model.setName("TEST1");
-		model.setLasName("TEST-LAST_NAME");
-		model.setBirthDate(Calendar.getInstance().getTime());
-		model.setGender(EGender.Male);
+		assignValues(model);
+
+		// Prepare stream
 		baos = new ByteArrayOutputStream();
 		out = new ObjectOutputStream(baos);
 		out.writeObject(model);
@@ -160,19 +213,33 @@ public class ProxyBeanImplTest
 		Assert.assertEquals(model, model1);
 		Assert.assertNotSame(model, model1);
 	}
-	
+	/**
+	 * Test the clone with explicit bean implementation.
+	 */
 	@Test public void testMixedClone()
 	{
 		IModel m1, m2;
 		
 		m1 = ProxyBeanFactory.newProxy(IModel.class);
-		m1.setName(NAME_VALUE);
-		m1.setLasName(LAST_NAME_VALUE);
-		m1.setBirthDate(Calendar.getInstance().getTime());
-		m1.setGender(EGender.Female);
+		assignValues(m1);
 		
 		m2 = new ModelImpl(m1);
 		
 		Assert.assertEquals(m1, m2);
+	}
+	
+	/**
+	 * Assign the test reference values for the model.
+	 * @param model The model to assign to
+	 */
+	private void assignValues(IModel model)
+	{
+        model.setId(ID_VALUE);
+        model.setName(NAME_VALUE);
+        model.setLasName(LAST_NAME_VALUE);
+        model.setBirthDate(BIRTHDATE_VALUE);
+        model.setNumberOfChildren(NUMBER_OF_CHILDREN_VALUE);
+        model.setIncomingYear(INCOMING_YEAR_VALUE);
+        model.setGender(GENDER_VALUE);
 	}
 }

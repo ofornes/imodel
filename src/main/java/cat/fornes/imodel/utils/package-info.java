@@ -5,6 +5,6 @@
  * Some utilities classes.
  * 
  * @author ofornes
- * @since 17/01/2013
+ * @since 1.0.0
  */
 package cat.fornes.imodel.utils;

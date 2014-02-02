@@ -53,7 +53,7 @@ import cat.fornes.imodel.utils.ObjectUtils;
  * The proxy is a JDK Proxy framework instance.
  * 
  * @author octavi@fornes.cat
- * @since 0.1.0
+ * @since 1.0.0
  */
 public class ProxyBeanImpl<T> implements InvocationHandler, Serializable
 {

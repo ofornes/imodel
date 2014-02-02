@@ -24,7 +24,7 @@ import java.util.Arrays;
  * Some object's utilities.
  * 
  * @author ofornes
- * @since 17/01/2013
+ * @since 1.0.0
  */
 public abstract class ObjectUtils
 {

@@ -19,8 +19,9 @@
 package cat.fornes.imodel.models;
 
 /**
+ * A gender enum.
  * @author octavi@fornes.cat
- * @since 0.0.1-SNAPSHOT
+ * @since 1.0.0
  */
 public enum EGender
 {
