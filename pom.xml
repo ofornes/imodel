@@ -11,8 +11,9 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.build.source>1.6</project.build.source>
-		<project.build.targetJdk>1.6</project.build.targetJdk>
+		<project.build.source>1.8</project.build.source>
+		<project.build.targetJdk>1.8</project.build.targetJdk>
+		<spring.version>3.2.10.RELEASE</spring.version>
 	</properties>
 
 	<build>
@@ -136,6 +137,11 @@
 					<artifactId>log4j</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${spring.version}</version>
 		</dependency>
 	</dependencies>
 </project>

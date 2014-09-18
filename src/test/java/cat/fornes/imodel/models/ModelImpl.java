@@ -16,7 +16,7 @@ package cat.fornes.imodel.models;
 
 import java.util.Date;
 
-import cat.fornes.imodel.utils.ObjectUtils;
+import org.springframework.util.ObjectUtils;
 
 /**
  * A implementation of {@link IModel} for test mixed operations (proxy and class).

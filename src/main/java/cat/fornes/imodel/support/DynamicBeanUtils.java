@@ -16,16 +16,15 @@
  *
  * Copyright (C) 2013 Octavi Fornés
  */
-package cat.fornes.imodel;
-
+package cat.fornes.imodel.support;
 
 /**
- * Some utilities for {@link ProxyBeanFactory} and {@link ProxyBeanImpl} operations.
+ * Some utilities for dynamic bean operations.
  * 
  * @author octavi@fornes.cat
  * @since 1.0.0
  */
-public abstract class ProxyBeanUtils
+public abstract class DynamicBeanUtils
 {
 	/**
 	 * Check if the method name is a get/set/is property bean access method.

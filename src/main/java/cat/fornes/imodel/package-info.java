@@ -17,15 +17,15 @@
  * Copyright (C) 2013 Octavi Fornés
  */
 /**
- * Utilities for beans dynamic implementations.
+ * Utilities for dynamic beans implementations.
  * 
  * Enables data definition as JavaBean applying the "facade pattern".
- * Next, you can create a implementation with the Proxy utility.<br/>
+ * Next, you can create a implementation with the Dynamic factory.<br/>
  * Features:
  * <ul>
  * <li>Implement getters and setters as declared on interface</li>
  * <li>Implement equals, hashCode and toString default methods</li>
- * <li>The proxy can be serialized safely; only errors if some java bean property was defined as non-serializable</li>
+ * <li>The dynamic bean can be serialized safely; only errors if some java bean property was defined as non-serializable</li>
  * <li>Also implement a clone method if declared on interface</li>
  * </ul>
  * @since 1.0.0

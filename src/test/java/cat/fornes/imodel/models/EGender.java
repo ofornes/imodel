@@ -25,6 +25,8 @@ package cat.fornes.imodel.models;
  */
 public enum EGender
 {
+    /** A sample enum item value. */
 	Female
+    /** Another sample enum item value. */
 	,Male
 }

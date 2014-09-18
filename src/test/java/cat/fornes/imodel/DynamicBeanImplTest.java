@@ -23,24 +23,37 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Method;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.junit.Assert;
+import junit.framework.Assert;
+
 import org.junit.Test;
 
 import cat.fornes.imodel.models.EGender;
 import cat.fornes.imodel.models.IModel;
+import cat.fornes.imodel.models.IModelSpecial;
 import cat.fornes.imodel.models.ModelImpl;
+import cat.fornes.imodel.support.IDelegateMethodDispatcher;
+import cat.fornes.imodel.support.ReturnMetadata;
 
 /**
- * Test of {@link ProxyBeanImpl}.
+ * Test of {@link DynamicBeanImpl}.
  * 
  * @author octavi@fornes.cat
  * @since 1.0.0
  */
-public class ProxyBeanImplTest
+public class DynamicBeanImplTest
 {
+    /**
+     * 
+     */
+    private static final String VALUE_TEST_DELEGATE_ERROR = "xX";
+    /**
+     * 
+     */
+    private static final String VALUE_TEST_DELEGATE = "35";
     /** Test value for id prop. */
     private static final long ID_VALUE = 346112L;
 	/** Test value for name prop. */
@@ -54,6 +67,7 @@ public class ProxyBeanImplTest
 	private static final double INCOMING_YEAR_VALUE = 32056.12D;
 	/** Test value for gender prop. */
 	private static final EGender GENDER_VALUE = EGender.Female;
+	
 	/*
 	 * Initialize instance
 	 */
@@ -70,6 +84,35 @@ public class ProxyBeanImplTest
 	    c.set(Calendar.SECOND, 0);
 	    c.set(Calendar.MILLISECOND, 0);
 	    BIRTHDATE_VALUE = c.getTime();
+	    
+	    IDelegateMethodDispatcher dispatcher = new IDelegateMethodDispatcher()
+	    {
+	        @Override
+	        public ReturnMetadata doInvoke(Object instance, Method method, Object... args)
+	        {
+	            ReturnMetadata rmd;
+	            
+	            rmd = new ReturnMetadata();
+	            rmd.setContinueProcessing(true);
+	            if("translateValue".equals(method.getName()))
+	            {
+	                String value;
+	                
+	                rmd.setContinueProcessing(false);
+	                value = (String)args[0];
+	                try
+	                {
+	                    rmd.setReturnedValue(Integer.parseInt(value));
+	                }
+	                catch(NumberFormatException e)
+	                {
+	                    rmd.setExceptionToBeThrown(e);
+	                }
+	            }
+	            return rmd;
+	        }
+	    };
+	    DynamicBeanFactory.addGenericDispatcher(IModelSpecial.class, dispatcher);
 	}
 	/**
 	 * Test the 'getters' and 'setters' features
@@ -78,7 +121,7 @@ public class ProxyBeanImplTest
 	{
 		IModel m;
 		
-		m = ProxyBeanFactory.newProxy(IModel.class);
+		m = DynamicBeanFactory.newDynamicBean(IModel.class);
 		Assert.assertEquals(0L, m.getId());
 		Assert.assertNull(m.getName());
 		Assert.assertNull(m.getLasName());
@@ -157,7 +200,7 @@ public class ProxyBeanImplTest
 	{
 		IModel m1, m2;
 		
-		m1 = ProxyBeanFactory.newProxy(IModel.class);
+		m1 = DynamicBeanFactory.newDynamicBean(IModel.class);
 		assignValues(m1);
 		
 		m2 = m1.clone();
@@ -172,7 +215,7 @@ public class ProxyBeanImplTest
 		IModel m1, m2;
 		int n;
 		
-		m1 = ProxyBeanFactory.newProxy(IModel.class);
+		m1 = DynamicBeanFactory.newDynamicBean(IModel.class);
 		assignValues(m1);
 		
 		m2 = m1.clone();
@@ -184,6 +227,7 @@ public class ProxyBeanImplTest
 	}
 	/**
 	 * Test the serialization feature.
+	 * @throws Exception If errors on serialization
 	 */
 	@Test public void testSerialize() throws Exception
 	{
@@ -194,7 +238,7 @@ public class ProxyBeanImplTest
 		ObjectInputStream in;
 		
 		// Prepare bean
-		model = ProxyBeanFactory.newProxy(IModel.class);
+		model = DynamicBeanFactory.newDynamicBean(IModel.class);
 		assignValues(model);
 
 		// Prepare stream
@@ -220,14 +264,60 @@ public class ProxyBeanImplTest
 	{
 		IModel m1, m2;
 		
-		m1 = ProxyBeanFactory.newProxy(IModel.class);
+		m1 = DynamicBeanFactory.newDynamicBean(IModel.class);
 		assignValues(m1);
 		
 		m2 = new ModelImpl(m1);
 		
 		Assert.assertEquals(m1, m2);
 	}
+	/**
+	 * Test the delegation system for local.
+	 */
+	@Test public void testLocalDelegateUse()
+	{
+	    IModelSpecial m1;
+	    int n;
+	    
+	    m1 = DynamicBeanFactory.newDynamicBean(IModelSpecial.class);
+	    n = m1.translateValue(VALUE_TEST_DELEGATE);
+	    Assert.assertEquals(Integer.parseInt(VALUE_TEST_DELEGATE), n);
+	    
+	    // An error value
+	    try
+	    {
+	        n = m1.translateValue(VALUE_TEST_DELEGATE_ERROR);
+	        Assert.fail("On error value!");
+	    }
+	    catch(NumberFormatException e)
+	    {
+	        // OK!
+	    }
+	}
 	
+    /**
+     * Test the delegation system for local.
+     */
+    @Test public void testGenericDelegateUse()
+    {
+        IModelSpecial m1;
+        int n;
+        
+        m1 = DynamicBeanFactory.newDynamicBean(IModelSpecial.class);
+        n = m1.translateValue(VALUE_TEST_DELEGATE);
+        Assert.assertEquals(Integer.parseInt(VALUE_TEST_DELEGATE), n);
+        
+        // An error value
+        try
+        {
+            n = m1.translateValue(VALUE_TEST_DELEGATE_ERROR);
+            Assert.fail("On error value!");
+        }
+        catch(NumberFormatException e)
+        {
+            // OK!
+        }
+    }
 	/**
 	 * Assign the test reference values for the model.
 	 * @param model The model to assign to

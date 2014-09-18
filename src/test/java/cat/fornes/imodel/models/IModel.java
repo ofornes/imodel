@@ -29,36 +29,79 @@ import java.util.Date;
  */
 public interface IModel extends Serializable, Cloneable
 {
-	/** Internal ID, unique */
+	/**
+	 * Internal ID, unique. 
+	 * @return the Id
+	 */
 	public long getId();
-	/** Internal ID, unique */
+	/**
+	 * Internal ID, unique.
+	 * @param id The id
+	 */
 	public void setId(long id);
-	/** Name */
+	/**
+	 * The name.
+	 * @return the name
+	 */
 	public String getName();
-	/** Name */
+    /**
+     * The name.
+     * @param name the name
+     */
 	public void setName(String name);
-	/** Last name */
+    /**
+     * The last name.
+     * @return the last name
+     */
 	public String getLasName();
-	/** Last name */
+    /**
+     * The last name.
+     * @param lastName the last name
+     */
 	public void setLasName(String lastName);
-	/** Birth date */
+    /**
+     * The birth date.
+     * @return the birth date
+     */
 	public Date getBirthDate();
-	/** Birth date */
+    /**
+     * The birth date.
+     * @param birthDate the birth date
+     */
 	public void setBirthDate(Date birthDate);
-	/** Number of children */
+    /**
+     * Number of children.
+     * @return the number of children
+     */
 	public int getNumberOfChildren();
-	/** Number of children */
+    /**
+     * Number of children.
+     * @param numberOfChildren the number of children
+     */
 	public void setNumberOfChildren(int numberOfChildren);
-	/** The incoming for year */
+    /**
+     * The incoming for year.
+     * @return the incoming for year
+     */
 	public double getIncomingYear();
-	/** The incoming for year */
+    /**
+     * The incoming for year.
+     * @param incomingYear the incoming for year
+     */
 	public void setIncomingYear(double incomingYear);
-	/** Gender */
+    /**
+     * The gender.
+     * @return the gender
+     */
 	public EGender getGender();
-	/** Gender */
+    /**
+     * The gender.
+     * @param gender the gender
+     */
 	public void setGender(EGender gender);
 	/**
 	 * Clone this bean.
+	 * @return The cloned bean
 	 */
 	public IModel clone();
 }
