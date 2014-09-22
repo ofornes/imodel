@@ -22,6 +22,8 @@ import static cat.fornes.imodel.support.DynamicBeanUtils.isGetter;
 import static cat.fornes.imodel.support.DynamicBeanUtils.isProperty;
 import static cat.fornes.imodel.support.DynamicBeanUtils.propertyName;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -74,6 +76,14 @@ class DynamicBeanImpl<T> implements InvocationHandler, Serializable
 
     /** An optionally delegate method dispatcher, to call to on {@link #doInvoke(Method, Object...)}. */
     private Set<IDelegateMethodDispatcher> delegateMethodDispatchers;
+    
+    /**
+     * The factory for this dynamicBean.
+     */
+    transient private IDynamicBeanFactory dynamicBeanFactory;
+    /**
+     * Private constructor to set the initial state.
+     */
     private DynamicBeanImpl()
     {
         values = Collections.synchronizedMap(new TreeMap<String, Object>());
@@ -87,6 +97,7 @@ class DynamicBeanImpl<T> implements InvocationHandler, Serializable
         this();
         beanImplementationInfo = origin.beanImplementationInfo;
         delegateMethodDispatchers = origin.delegateMethodDispatchers;
+        dynamicBeanFactory = origin.dynamicBeanFactory;
         for(DynamicBeanImplementationInfo<T>.PropertyBeanDescriptor oPb : beanImplementationInfo.getPropertyBeanDescriptors().values())
         {
             values.put(oPb.getName(), cloneValue(oPb, origin.values.get(oPb.getName())));
@@ -98,12 +109,13 @@ class DynamicBeanImpl<T> implements InvocationHandler, Serializable
      * @param dispatcher An optional dispatcher for methods other than the dynamically implemented
      * @throws IllegalArgumentException If the type is not an interface
      */
-    DynamicBeanImpl(DynamicBeanImplementationInfo<T> metadata, Set<IDelegateMethodDispatcher> dispatchers)
+    DynamicBeanImpl(IDynamicBeanFactory factory, DynamicBeanImplementationInfo<T> metadata, Set<IDelegateMethodDispatcher> dispatchers)
     {
         this();
         
         beanImplementationInfo = metadata;
         delegateMethodDispatchers = dispatchers;
+        dynamicBeanFactory = factory;
         // Assign default values
         for(DynamicBeanImplementationInfo<T>.PropertyBeanDescriptor pbv : beanImplementationInfo.getPropertyBeanDescriptors().values())
         {
@@ -229,6 +241,14 @@ class DynamicBeanImpl<T> implements InvocationHandler, Serializable
     protected void doSetter(DynamicBeanImplementationInfo<T>.PropertyBeanDescriptor pb, Object... arguments)
     {
         values.put(pb.getName(), nullSafeValue(arguments[0], pb));
+    }
+    /**
+     * On deserialize, reconstruct the implemented type information.
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
+    {
+        in.defaultReadObject();
+        dynamicBeanFactory = DynamicBeanFactory.dynamicBeanFactoryInstance();
     }
 
     /**
@@ -423,9 +443,10 @@ class DynamicBeanImpl<T> implements InvocationHandler, Serializable
     /**
      * Clone the implemented bean with the same values
      */
+    @SuppressWarnings("unchecked")
     public T clone()
     {
-        return DynamicBeanFactory.<T>cloneDynamicBean(this);
+        return dynamicBeanFactory.<T>cloneDynamicBean((T)this);
     }
     /**
      * Clone a value for a property bean.

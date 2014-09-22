@@ -112,7 +112,7 @@ public class DynamicBeanImplTest
 	            return rmd;
 	        }
 	    };
-	    DynamicBeanFactory.addGenericDispatcher(IModelSpecial.class, dispatcher);
+	    DynamicBeanFactory.dynamicBeanFactoryInstance().addGenericDispatcher(IModelSpecial.class, dispatcher);
 	}
 	/**
 	 * Test the 'getters' and 'setters' features
@@ -121,7 +121,7 @@ public class DynamicBeanImplTest
 	{
 		IModel m;
 		
-		m = DynamicBeanFactory.newDynamicBean(IModel.class);
+		m = DynamicBeanFactory.dynamicBeanFactoryInstance().instantiateBean(IModel.class);
 		Assert.assertEquals(0L, m.getId());
 		Assert.assertNull(m.getName());
 		Assert.assertNull(m.getLasName());
@@ -200,7 +200,7 @@ public class DynamicBeanImplTest
 	{
 		IModel m1, m2;
 		
-		m1 = DynamicBeanFactory.newDynamicBean(IModel.class);
+		m1 = DynamicBeanFactory.dynamicBeanFactoryInstance().instantiateBean(IModel.class);
 		assignValues(m1);
 		
 		m2 = m1.clone();
@@ -215,7 +215,7 @@ public class DynamicBeanImplTest
 		IModel m1, m2;
 		int n;
 		
-		m1 = DynamicBeanFactory.newDynamicBean(IModel.class);
+		m1 = DynamicBeanFactory.dynamicBeanFactoryInstance().instantiateBean(IModel.class);
 		assignValues(m1);
 		
 		m2 = m1.clone();
@@ -238,7 +238,7 @@ public class DynamicBeanImplTest
 		ObjectInputStream in;
 		
 		// Prepare bean
-		model = DynamicBeanFactory.newDynamicBean(IModel.class);
+		model = DynamicBeanFactory.dynamicBeanFactoryInstance().instantiateBean(IModel.class);
 		assignValues(model);
 
 		// Prepare stream
@@ -264,7 +264,7 @@ public class DynamicBeanImplTest
 	{
 		IModel m1, m2;
 		
-		m1 = DynamicBeanFactory.newDynamicBean(IModel.class);
+		m1 = DynamicBeanFactory.dynamicBeanFactoryInstance().instantiateBean(IModel.class);
 		assignValues(m1);
 		
 		m2 = new ModelImpl(m1);
@@ -279,7 +279,7 @@ public class DynamicBeanImplTest
 	    IModelSpecial m1;
 	    int n;
 	    
-	    m1 = DynamicBeanFactory.newDynamicBean(IModelSpecial.class);
+	    m1 = DynamicBeanFactory.dynamicBeanFactoryInstance().instantiateBean(IModelSpecial.class);
 	    n = m1.translateValue(VALUE_TEST_DELEGATE);
 	    Assert.assertEquals(Integer.parseInt(VALUE_TEST_DELEGATE), n);
 	    
@@ -303,7 +303,7 @@ public class DynamicBeanImplTest
         IModelSpecial m1;
         int n;
         
-        m1 = DynamicBeanFactory.newDynamicBean(IModelSpecial.class);
+        m1 = DynamicBeanFactory.dynamicBeanFactoryInstance().instantiateBean(IModelSpecial.class);
         n = m1.translateValue(VALUE_TEST_DELEGATE);
         Assert.assertEquals(Integer.parseInt(VALUE_TEST_DELEGATE), n);
         

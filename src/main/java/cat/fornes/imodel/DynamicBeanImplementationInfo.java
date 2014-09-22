@@ -35,6 +35,8 @@ import java.util.Vector;
 
 import org.springframework.util.Assert;
 
+import cat.fornes.imodel.annotations.NonNullDefaultValue;
+
 /**
  * The metadata information for a {@link DynamicBeanImpl dynamic bean implementation} for a specific type.
  * 
@@ -103,6 +105,7 @@ class DynamicBeanImplementationInfo<T> implements Serializable
     private void resolveGettersSettersMethods()
     {
         PropertyBeanDescriptor pb;
+
         // Prepare the properties list
         for(Method method : implementedType.getMethods())
         {
@@ -113,6 +116,9 @@ class DynamicBeanImplementationInfo<T> implements Serializable
                 {
                     pb.getterMethod = method;
                     pb.primitive = method.getReturnType().isPrimitive();
+                    // Check for annotations
+                    // Set the default value for this property
+                    pb.nonNulDefaultValue = method.isAnnotationPresent(NonNullDefaultValue.class);
                 }
                 else
                 {
@@ -180,6 +186,8 @@ class DynamicBeanImplementationInfo<T> implements Serializable
 
         private boolean primitive;
         
+        private boolean nonNulDefaultValue;
+        
         /**
          * Default constructor.
          */
@@ -197,6 +205,7 @@ class DynamicBeanImplementationInfo<T> implements Serializable
             getterMethod = origin.getterMethod;
             setterMethod = origin.setterMethod;
             primitive = origin.primitive;
+            nonNulDefaultValue = origin.nonNulDefaultValue;
         }
         
         /**

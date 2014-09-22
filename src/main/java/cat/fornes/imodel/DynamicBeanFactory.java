@@ -18,7 +18,6 @@
  */
 package cat.fornes.imodel;
 
-import cat.fornes.imodel.support.IDelegateMethodDispatcher;
 
 /**
  * The dynamic bean static factory creator.
@@ -44,47 +43,16 @@ public abstract class DynamicBeanFactory
      * The genericDispatchers, applicable automatically to any new dynamic bean.
      * The index is the qualified name of the interface.
      */
-    static final ConfigurableDynamicBeanFactory singletonDynamicBeanFactory = new ConfigurableDynamicBeanFactory();
+    static final IDynamicBeanFactory singletonDynamicBeanFactory = new ConfigurableDynamicBeanFactory();
+
     /**
-     * Creates a dynamic bean for the type.
-     * @param typeToImplement The interface type to implement
-     * @return The dynamic bean, as typeToImplement type.
-     * @throws IllegalArgumentException If the type is not an interface
-     * @throws IllegalArgumentException If null is passed
+     * The dynamic bean factory singleton instance.
+     * @return the dynamic bean factory 
      */
-    public static final <T> T newDynamicBean(Class<T> typeToImplement)
+    public static IDynamicBeanFactory dynamicBeanFactoryInstance()
     {
-        return singletonDynamicBeanFactory.instantiateBean(typeToImplement);
+        return singletonDynamicBeanFactory;
     }
-    /**
-     * Add a new generic dispatcher associated with an interface.
-     * @param interfaceToDispatch The interface class, cannot be null and should to be an interface
-     * @param dispatcher The dispatcher, cannot be null
-     * @throws IllegalArgumentException If any argument are null or if interfaceToDispatch is not an interface
-     */
-    public static final void addGenericDispatcher(Class<?> interfaceToDispatch, IDelegateMethodDispatcher dispatcher)
-    {
-        singletonDynamicBeanFactory.addGenericDispatcher(interfaceToDispatch,dispatcher);
-    }
-    /**
-     * Remove a dispatcher for a interface.
-     * @param interfaceToDispatch The interface class, cannot be null and should to be an interface
-     * @param dispatcher The dispatcher, cannot be null
-     * @return true if removed or false if not
-     * @throws IllegalArgumentException If any argument are null or if interfaceToDispatch is not an interface
-     */
-    public static final boolean removeGenericDispatcher(Class<?>interfaceToDispatch, IDelegateMethodDispatcher dispatcher)
-    {
-        return singletonDynamicBeanFactory.removeGenericDispatcher(interfaceToDispatch, dispatcher);
-    }
-    /**
-     * Clone a dynamicBean instance.
-     * @param dynamicBean The dynamicBean
-     * @return The cloned instance
-     * @throws IllegalArgumentException If the instance isn't a dynamicBean
-     */
-    public static final <T> T cloneDynamicBean(DynamicBeanImpl<T> dynamicBean)
-    {
-        return singletonDynamicBeanFactory.cloneDynamicBean(dynamicBean);
-    }
+    
+    
 }

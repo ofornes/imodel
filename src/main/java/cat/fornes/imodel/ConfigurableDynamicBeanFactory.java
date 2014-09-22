@@ -18,16 +18,22 @@
  */
 package cat.fornes.imodel;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Proxy;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import cat.fornes.imodel.annotations.DelegateMethodDispatcher;
 import cat.fornes.imodel.support.IDelegateMethodDispatcher;
 
 /**
@@ -36,8 +42,11 @@ import cat.fornes.imodel.support.IDelegateMethodDispatcher;
  * @author Octavi Fornés <a href="mailto:ofornes@albirar.cat">ofornes@albirar.cat</a>
  * @since 1.1.0
  */
-public class ConfigurableDynamicBeanFactory
+@Component
+public class ConfigurableDynamicBeanFactory implements IDynamicBeanFactory
 {
+    private static final Logger logger = LoggerFactory.getLogger(ConfigurableDynamicBeanFactory.class);
+    
     private Map<String, Set<IDelegateMethodDispatcher>> genericDispatchers;
     private Map<String, DynamicBeanImplementationInfo<?>> metadataTypes;
     /**
@@ -49,38 +58,27 @@ public class ConfigurableDynamicBeanFactory
         metadataTypes = Collections.synchronizedMap(new TreeMap<String, DynamicBeanImplementationInfo<?>>());
     }
     /**
-     * A list of generic dispatchers for each 'key' type.
-     * The 'key' is the qualified name of the type, and the value list is a collection
-     * of dispatchers for this type.
-     * The order of the list establish the precedence on treatment; the first element has the
-     * maximum precedence and the last is the minimum precedence.
-     * @return collection of generic dispatchers
+     * {@inheritDoc}
      */
+    @Override
     public Map<String, Set<IDelegateMethodDispatcher>> getGenericDispatchers()
     {
         return genericDispatchers;
     }
     /**
-     * A list of generic dispatchers for each 'key' type.
-     * The 'key' is the qualified name of the type, and the value list is a collection
-     * of dispatchers for this type.
-     * The order of the list establish the precedence on treatment; the first element has the
-     * maximum precedence and the last is the minimum precedence.
-     * @param genericDispatchers collection of generic dispatchers
+     * {@inheritDoc}
      */
+    @Override
     public void setGenericDispatchers(Map<String, Set<IDelegateMethodDispatcher>> genericDispatchers)
     {
         this.genericDispatchers = genericDispatchers;
     }
     /**
-     * Adds a new dispatcher to the list for interfaceToDispatch.
-     * @param interfaceToDispatch The interface to dispatch, cannot be null and should to be an interface
-     * @param dispatchers A collection of dispatchers, cannot be null
-     * @throws IllegalArgumentException If any argument is null or invalid 
+     * {@inheritDoc}
      */
+    @Override
     public void addAllGenericDispatchers(Class<?> interfaceToDispatch, List<IDelegateMethodDispatcher> dispatchers)
     {
-        Set<IDelegateMethodDispatcher> listDispatchers;
         Assert.notNull(interfaceToDispatch, "The interfaceToDispatch is required");
         Assert.isTrue(interfaceToDispatch.isInterface(), "The interfaceToDispatch should to be an interface");
         Assert.notNull(dispatchers, "The dispatcher collection is required");
@@ -89,24 +87,38 @@ public class ConfigurableDynamicBeanFactory
         {
             genericDispatchers = Collections.synchronizedMap(new TreeMap<String, Set<IDelegateMethodDispatcher>>());
         }
-        listDispatchers = genericDispatchers.get(interfaceToDispatch.getName());
-        if(listDispatchers == null)
-        {
-            listDispatchers = new HashSet<IDelegateMethodDispatcher>();
-            genericDispatchers.put(interfaceToDispatch.getName(), listDispatchers);
-        }
-        listDispatchers.addAll(dispatchers);
+        ensureListDispatchers(interfaceToDispatch.getName()).addAll(dispatchers);
     }
     /**
-     * Adds a new dispatcher to the list for interfaceToDispatch.
-     * @param interfaceToDispatch The interface to dispatch, cannot be null and should to be an interface
-     * @param dispatcher The dispatcher, cannot be null
-     * @throws IllegalArgumentException If any argument is null or invalid 
+     * Ensure the list dispatchers for the name.
+     * @param name The name associated with the dispatcher's list.
+     * @return The list itself.
      */
-    public void addGenericDispatcher(Class<?> interfaceToDispatch, IDelegateMethodDispatcher dispatcher)
+    private Set<IDelegateMethodDispatcher> ensureListDispatchers(String name)
     {
         Set<IDelegateMethodDispatcher> listDispatchers;
-
+        listDispatchers = genericDispatchers.get(name);
+        if(listDispatchers == null)
+        {
+            listDispatchers = new TreeSet<IDelegateMethodDispatcher>(new Comparator<IDelegateMethodDispatcher>()
+            {
+                @Override
+                public int compare(IDelegateMethodDispatcher o1, IDelegateMethodDispatcher o2)
+                {
+                    return o1.getClass().getName().compareTo(o2.getClass().getName());
+                }
+                
+            });
+            genericDispatchers.put(name, listDispatchers);
+        }
+        return listDispatchers;
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addGenericDispatcher(Class<?> interfaceToDispatch, IDelegateMethodDispatcher dispatcher)
+    {
         Assert.notNull(interfaceToDispatch, "The interfaceToDispatch is required");
         Assert.isTrue(interfaceToDispatch.isInterface(), "The interfaceToDispatch should to be an interface");
         Assert.notNull(dispatcher, "The dispatcher is required");
@@ -115,23 +127,16 @@ public class ConfigurableDynamicBeanFactory
         {
             genericDispatchers = Collections.synchronizedMap(new TreeMap<String, Set<IDelegateMethodDispatcher>>());
         }
-        listDispatchers = genericDispatchers.get(interfaceToDispatch.getName());
-        if(listDispatchers == null)
-        {
-            listDispatchers = new HashSet<IDelegateMethodDispatcher>();
-            genericDispatchers.put(interfaceToDispatch.getName(), listDispatchers);
-        }
-        listDispatchers.add(dispatcher);
+        ensureListDispatchers(interfaceToDispatch.getName()).add(dispatcher);
     }
     /**
-     * Remove the dispatcher from the list of dispatcher for the interfaceToDispatch.
-     * @param interfaceToDispatch The interface to dispatch.
-     * @param dispatcher The dispatchers to remove to
-     * @return true if removed and false if not found
+     * {@inheritDoc}
      */
+    @Override
     public boolean removeGenericDispatcher(Class<?> interfaceToDispatch, IDelegateMethodDispatcher dispatcher)
     {
         Set<IDelegateMethodDispatcher> listDispatchers;
+        boolean retorn;
 
         Assert.notNull(interfaceToDispatch, "The interfaceToDispatch is required");
         Assert.isTrue(interfaceToDispatch.isInterface(), "The interfaceToDispatch should to be an interface");
@@ -146,13 +151,16 @@ public class ConfigurableDynamicBeanFactory
         {
             return false;
         }
-        return listDispatchers.remove(dispatcher);
+        if( (retorn = listDispatchers.remove(dispatcher)) && listDispatchers.isEmpty())
+        {
+            genericDispatchers.remove(interfaceToDispatch.getName());
+        }
+        return retorn;
     }
     /**
-     * Instantiate a dynamic bean implementation of the indicated interface type.
-     * @param typeToImplement The interface class to implement; cannot be null and should to be an interface
-     * @return The instantiated dynamic bean
+     * {@inheritDoc}
      */
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T instantiateBean(Class<T> typeToImplement)
     {
@@ -170,21 +178,23 @@ public class ConfigurableDynamicBeanFactory
             dispatchers = null;
         }
         return (T)Proxy.newProxyInstance(typeToImplement.getClassLoader()
-               , new Class[] {typeToImplement}, new DynamicBeanImpl<T>(metadata,dispatchers));
+               , new Class[] {typeToImplement}, new DynamicBeanImpl<T>(this, metadata,dispatchers));
     }
     /**
-     * Clone a dynamicBean.
-     * @param dynamicBean The dynamicBean to clone
-     * @return The newly cloned dynamic bean
+     * {@inheritDoc}
      */
+    @Override
     @SuppressWarnings("unchecked")
-    public <T> T cloneDynamicBean(DynamicBeanImpl<T> dynamicBean)
+    public <T> T cloneDynamicBean(T dynamicBean)
     {
         if(DynamicBeanImpl.class.isAssignableFrom(dynamicBean.getClass()))
         {
-            return (T)Proxy.newProxyInstance(dynamicBean.getImplementedType().getClassLoader()
-                    , new Class[] {dynamicBean.getImplementedType()}
-                    , new DynamicBeanImpl<T>(dynamicBean));
+            DynamicBeanImpl<T> db;
+            
+            db = (DynamicBeanImpl<T>)dynamicBean;
+            return (T)Proxy.newProxyInstance(db.getImplementedType().getClassLoader()
+                    , new Class[] {db.getImplementedType()}
+                    , new DynamicBeanImpl<T>(db));
         }
         throw new IllegalArgumentException(String.format("The instance '%s' is not a dynamic bean!",dynamicBean));
     }
@@ -199,6 +209,8 @@ public class ConfigurableDynamicBeanFactory
     private <T> DynamicBeanImplementationInfo<T> resolveMetadata(Class<T> typeToImplement)
     {
         DynamicBeanImplementationInfo<T> metadata;
+        Set<String> dispatchers;
+        Set<IDelegateMethodDispatcher> dInstances;
         
         Assert.notNull(typeToImplement , "typeToImplement cannot to be null");
         metadata = (DynamicBeanImplementationInfo<T>)metadataTypes.get(typeToImplement.getName());
@@ -208,6 +220,47 @@ public class ConfigurableDynamicBeanFactory
             metadata = new DynamicBeanImplementationInfo<T>(typeToImplement);
             metadataTypes.put(typeToImplement.getName(), metadata);
         }
+        dispatchers = Collections.synchronizedSet(new TreeSet<String>());
+        // Check for delegateDispatcher from annotations
+        for(Class<?> interfaceToCheck: typeToImplement.getInterfaces())
+        {
+            recopileDispatchers(dispatchers, interfaceToCheck);
+        }
+        // if dispatchers...
+        if(!dispatchers.isEmpty())
+        {
+            // Materialize...
+            dInstances = ensureListDispatchers(typeToImplement.getName());
+            for(String d : dispatchers)
+            {
+                try
+                {
+                    dInstances.add((IDelegateMethodDispatcher)Class.forName(d).newInstance());
+                }
+                catch(InstantiationException | IllegalAccessException | ClassNotFoundException e)
+                {
+                    logger.error(String.format("On instantiate delegate method dispatcher '%s', ommit them! (%s)",d,e.getMessage()),e);
+                    // Ommit this delegate dispatcher
+                }
+            }
+        }
         return metadata;
+    }
+    
+    private void recopileDispatchers(Set<String> dispatchers, Class<?> interfaceToCheck)
+    {
+        Annotation annotation;
+        
+        // Check for parents...
+        for(Class<?> otherInterface : interfaceToCheck.getInterfaces())
+        {
+            recopileDispatchers(dispatchers, otherInterface);
+        }
+        // Now check annotations on this
+        annotation = interfaceToCheck.getAnnotation(DelegateMethodDispatcher.class);
+        if(annotation != null)
+        {
+            dispatchers.add(((DelegateMethodDispatcher)annotation).delegateDispatcher().getName());
+        }
     }
 }
