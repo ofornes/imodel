@@ -21,6 +21,8 @@ package cat.fornes.imodel.models;
 import java.io.Serializable;
 import java.util.Date;
 
+import cat.fornes.imodel.annotations.DefaultValue;
+
 /**
  * A model for test purposes.
  * 
@@ -29,10 +31,13 @@ import java.util.Date;
  */
 public interface IModel extends Serializable, Cloneable
 {
+    /** A default value for {@link #getId()}. */
+    public static final String ID_DEFAULT_VALUE = "346112";
 	/**
 	 * Internal ID, unique. 
 	 * @return the Id
 	 */
+    @DefaultValue(ID_DEFAULT_VALUE)
 	public long getId();
 	/**
 	 * Internal ID, unique.

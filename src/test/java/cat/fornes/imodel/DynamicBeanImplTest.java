@@ -27,13 +27,15 @@ import java.lang.reflect.Method;
 import java.util.Calendar;
 import java.util.Date;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import cat.fornes.imodel.models.EGender;
+import cat.fornes.imodel.models.ICompoundModel;
 import cat.fornes.imodel.models.IModel;
+import cat.fornes.imodel.models.IModelDefaultValuesObjects;
 import cat.fornes.imodel.models.IModelSpecial;
+import cat.fornes.imodel.models.IModelWithDerivedDynProperties;
 import cat.fornes.imodel.models.ModelImpl;
 import cat.fornes.imodel.support.IDelegateMethodDispatcher;
 import cat.fornes.imodel.support.ReturnMetadata;
@@ -46,16 +48,14 @@ import cat.fornes.imodel.support.ReturnMetadata;
  */
 public class DynamicBeanImplTest
 {
-    /**
-     * 
-     */
+    /** Test value for dispatcher test. */
     private static final String VALUE_TEST_DELEGATE_ERROR = "xX";
-    /**
-     * 
-     */
+    /** Test value for dispatcher test. */
     private static final String VALUE_TEST_DELEGATE = "35";
     /** Test value for id prop. */
-    private static final long ID_VALUE = 346112L;
+    private static final long ID_VALUE = 43988L;
+    /** Default value for id prop. */
+    private static final long DEFAULT_ID_VALUE = Long.parseLong(IModel.ID_DEFAULT_VALUE);
 	/** Test value for name prop. */
 	private static final String NAME_VALUE = "NAME";
 	/** Test value for last name prop. */
@@ -122,76 +122,70 @@ public class DynamicBeanImplTest
 		IModel m;
 		
 		m = DynamicBeanFactory.dynamicBeanFactoryInstance().instantiateBean(IModel.class);
-		Assert.assertEquals(0L, m.getId());
-		Assert.assertNull(m.getName());
-		Assert.assertNull(m.getLasName());
-		Assert.assertNull(m.getBirthDate());
-        Assert.assertEquals(0,m.getNumberOfChildren());
-        Assert.assertEquals(0.0D,m.getIncomingYear(),0.0D);
-		Assert.assertNull(m.getGender());
+		checkInitialValuesForModel(m);
 		
 		m.setId(ID_VALUE);
-        Assert.assertEquals(ID_VALUE, m.getId());
+        Assert.assertEquals(m.getId(),ID_VALUE);
         Assert.assertNull(m.getName());
         Assert.assertNull(m.getLasName());
         Assert.assertNull(m.getBirthDate());
-        Assert.assertEquals(0,m.getNumberOfChildren());
-        Assert.assertEquals(0.0D,m.getIncomingYear(),0.0D);
+        Assert.assertEquals(m.getNumberOfChildren(),0);
+        Assert.assertEquals(m.getIncomingYear(),0.0D,0.0D);
         Assert.assertNull(m.getGender());
 		
 		m.setName(NAME_VALUE);
-        Assert.assertEquals(ID_VALUE, m.getId());
-		Assert.assertEquals(NAME_VALUE, m.getName());
+        Assert.assertEquals(m.getId(),ID_VALUE);
+		Assert.assertEquals(m.getName(),NAME_VALUE);
         Assert.assertNull(m.getLasName());
         Assert.assertNull(m.getBirthDate());
-        Assert.assertEquals(0,m.getNumberOfChildren());
-        Assert.assertEquals(0.0D,m.getIncomingYear(),0.0D);
+        Assert.assertEquals(m.getNumberOfChildren(),0);
+        Assert.assertEquals(m.getIncomingYear(),0.0D,0.0D);
         Assert.assertNull(m.getGender());
 		
 		m.setLasName(LAST_NAME_VALUE);
-        Assert.assertEquals(ID_VALUE, m.getId());
-        Assert.assertEquals(NAME_VALUE, m.getName());
-        Assert.assertEquals(LAST_NAME_VALUE, m.getLasName());
+        Assert.assertEquals(m.getId(),ID_VALUE);
+        Assert.assertEquals(m.getName(),NAME_VALUE);
+        Assert.assertEquals(m.getLasName(),LAST_NAME_VALUE);
         Assert.assertNull(m.getBirthDate());
-        Assert.assertEquals(0,m.getNumberOfChildren());
-        Assert.assertEquals(0.0D,m.getIncomingYear(),0.0D);
+        Assert.assertEquals(m.getNumberOfChildren(),0);
+        Assert.assertEquals(m.getIncomingYear(),0.0D,0.0D);
         Assert.assertNull(m.getGender());
 		
 		m.setBirthDate(BIRTHDATE_VALUE);
-        Assert.assertEquals(ID_VALUE, m.getId());
-        Assert.assertEquals(NAME_VALUE, m.getName());
-        Assert.assertEquals(LAST_NAME_VALUE, m.getLasName());
-		Assert.assertEquals(new Date(BIRTHDATE_VALUE.getTime()), m.getBirthDate());
-        Assert.assertEquals(0,m.getNumberOfChildren());
-        Assert.assertEquals(0.0D,m.getIncomingYear(),0.0D);
+        Assert.assertEquals(m.getId(),ID_VALUE);
+        Assert.assertEquals(m.getName(),NAME_VALUE);
+        Assert.assertEquals(m.getLasName(),LAST_NAME_VALUE);
+		Assert.assertEquals(m.getBirthDate(),new Date(BIRTHDATE_VALUE.getTime()));
+        Assert.assertEquals(m.getNumberOfChildren(),0);
+        Assert.assertEquals(m.getIncomingYear(),0.0D,0.0D);
         Assert.assertNull(m.getGender());
 
         m.setNumberOfChildren(NUMBER_OF_CHILDREN_VALUE);
-        Assert.assertEquals(ID_VALUE, m.getId());
-        Assert.assertEquals(NAME_VALUE, m.getName());
-        Assert.assertEquals(LAST_NAME_VALUE, m.getLasName());
-        Assert.assertEquals(new Date(BIRTHDATE_VALUE.getTime()), m.getBirthDate());
-        Assert.assertEquals(NUMBER_OF_CHILDREN_VALUE,m.getNumberOfChildren());
-        Assert.assertEquals(0.0D,m.getIncomingYear(),0.0D);
+        Assert.assertEquals(m.getId(),ID_VALUE);
+        Assert.assertEquals(m.getName(),NAME_VALUE);
+        Assert.assertEquals(m.getLasName(),LAST_NAME_VALUE);
+        Assert.assertEquals(m.getBirthDate(),new Date(BIRTHDATE_VALUE.getTime()));
+        Assert.assertEquals(m.getNumberOfChildren(),NUMBER_OF_CHILDREN_VALUE);
+        Assert.assertEquals(m.getIncomingYear(),0.0D,0.0D);
         Assert.assertNull(m.getGender());
 
         m.setIncomingYear(INCOMING_YEAR_VALUE);
-        Assert.assertEquals(ID_VALUE, m.getId());
-        Assert.assertEquals(NAME_VALUE, m.getName());
-        Assert.assertEquals(LAST_NAME_VALUE, m.getLasName());
-        Assert.assertEquals(new Date(BIRTHDATE_VALUE.getTime()), m.getBirthDate());
-        Assert.assertEquals(NUMBER_OF_CHILDREN_VALUE,m.getNumberOfChildren());
-        Assert.assertEquals(INCOMING_YEAR_VALUE,m.getIncomingYear(),0.0D);
+        Assert.assertEquals(m.getId(),ID_VALUE);
+        Assert.assertEquals(m.getName(),NAME_VALUE);
+        Assert.assertEquals(m.getLasName(),LAST_NAME_VALUE);
+        Assert.assertEquals(m.getBirthDate(),new Date(BIRTHDATE_VALUE.getTime()));
+        Assert.assertEquals(m.getNumberOfChildren(),NUMBER_OF_CHILDREN_VALUE);
+        Assert.assertEquals(m.getIncomingYear(),0.0D,INCOMING_YEAR_VALUE);
         Assert.assertNull(m.getGender());
         
 		m.setGender(GENDER_VALUE);
-        Assert.assertEquals(ID_VALUE, m.getId());
-        Assert.assertEquals(NAME_VALUE, m.getName());
-        Assert.assertEquals(LAST_NAME_VALUE, m.getLasName());
-        Assert.assertEquals(new Date(BIRTHDATE_VALUE.getTime()), m.getBirthDate());
-        Assert.assertEquals(NUMBER_OF_CHILDREN_VALUE,m.getNumberOfChildren());
-        Assert.assertEquals(INCOMING_YEAR_VALUE,m.getIncomingYear(),0.0D);
-		Assert.assertEquals(GENDER_VALUE,m.getGender());
+        Assert.assertEquals(m.getId(),ID_VALUE);
+        Assert.assertEquals(m.getName(),NAME_VALUE);
+        Assert.assertEquals(m.getLasName(),LAST_NAME_VALUE);
+        Assert.assertEquals(m.getBirthDate(),new Date(BIRTHDATE_VALUE.getTime()));
+        Assert.assertEquals(m.getNumberOfChildren(),NUMBER_OF_CHILDREN_VALUE);
+        Assert.assertEquals(m.getIncomingYear(),0.0D,INCOMING_YEAR_VALUE);
+		Assert.assertEquals(m.getGender(),GENDER_VALUE);
 	}
 	/**
 	 * Test the 'clone' feature
@@ -205,7 +199,7 @@ public class DynamicBeanImplTest
 		
 		m2 = m1.clone();
 		
-		Assert.assertEquals(m1, m2);
+		Assert.assertEquals(m2,m1);
 	}
 	/**
 	 * Test the 'hashCode' feature
@@ -254,7 +248,7 @@ public class DynamicBeanImplTest
 		
 		// Test if equals
 		Assert.assertNotNull(model1);
-		Assert.assertEquals(model, model1);
+		Assert.assertEquals(model1,model);
 		Assert.assertNotSame(model, model1);
 	}
 	/**
@@ -269,7 +263,7 @@ public class DynamicBeanImplTest
 		
 		m2 = new ModelImpl(m1);
 		
-		Assert.assertEquals(m1, m2);
+		Assert.assertEquals(m2,m1);
 	}
 	/**
 	 * Test the delegation system for local.
@@ -281,7 +275,7 @@ public class DynamicBeanImplTest
 	    
 	    m1 = DynamicBeanFactory.dynamicBeanFactoryInstance().instantiateBean(IModelSpecial.class);
 	    n = m1.translateValue(VALUE_TEST_DELEGATE);
-	    Assert.assertEquals(Integer.parseInt(VALUE_TEST_DELEGATE), n);
+	    Assert.assertEquals(n,Integer.parseInt(VALUE_TEST_DELEGATE));
 	    
 	    // An error value
 	    try
@@ -305,7 +299,7 @@ public class DynamicBeanImplTest
         
         m1 = DynamicBeanFactory.dynamicBeanFactoryInstance().instantiateBean(IModelSpecial.class);
         n = m1.translateValue(VALUE_TEST_DELEGATE);
-        Assert.assertEquals(Integer.parseInt(VALUE_TEST_DELEGATE), n);
+        Assert.assertEquals(n,Integer.parseInt(VALUE_TEST_DELEGATE));
         
         // An error value
         try
@@ -317,6 +311,62 @@ public class DynamicBeanImplTest
         {
             // OK!
         }
+    }
+    /**
+     * Test the default object values system.
+     */
+    @Test public void testDefaultObjectValues()
+    {
+        IModelDefaultValuesObjects m1;
+        
+        m1 = DynamicBeanFactory.dynamicBeanFactoryInstance().instantiateBean(IModelDefaultValuesObjects.class);
+        checkInitialValuesForModel(m1);
+        Assert.assertNotNull(m1.getList());
+        Assert.assertTrue(m1.getList().isEmpty());
+        Assert.assertNull(m1.getList2());
+    }
+    /**
+     * Test for autodetect properties.
+     */
+    @Test public void testAutoDetectProperties()
+    {
+        IModelWithDerivedDynProperties m1;
+        
+        m1 = DynamicBeanFactory.dynamicBeanFactoryInstance().instantiateBean(IModelWithDerivedDynProperties.class);
+        
+        // Check for correct default values
+        Assert.assertNotNull(m1.getDerivedDynProperty1()); // NotNull bu annotation
+        Assert.assertNull(m1.getDynProperty2());  // null by default
+        Assert.assertNull(m1.getDerivedDynProperty3());  // Autodetect, null
+        Assert.assertNotNull(m1.getAnnotatedProperty());  // By annotation, not autodetect, null
+        
+    }
+    /**
+     * Test the {@link IDynamicBeanFactory#instantiateBeanPartialyCloned(Class, Object)}.
+     */
+    @Test public void testPartialCloneInstantiation()
+    {
+        IModel m;
+        ICompoundModel cm;
+        
+        m = DynamicBeanFactory.dynamicBeanFactoryInstance().instantiateBean(IModel.class);
+        assignValues(m);
+        cm = DynamicBeanFactory.dynamicBeanFactoryInstance().instantiateBeanPartialyCloned(ICompoundModel.class, m);
+        checkReferencesValues(cm);
+    }
+    /**
+     * Test the initial values for model base.
+     * @param m The model
+     */
+    private void checkInitialValuesForModel(IModel m)
+    {
+        Assert.assertEquals(m.getId(),DEFAULT_ID_VALUE);
+        Assert.assertNull(m.getName());
+        Assert.assertNull(m.getLasName());
+        Assert.assertNull(m.getBirthDate());
+        Assert.assertEquals(m.getNumberOfChildren(),0);
+        Assert.assertEquals(m.getIncomingYear(),0.0D,0.0D);
+        Assert.assertNull(m.getGender());
     }
 	/**
 	 * Assign the test reference values for the model.
@@ -331,5 +381,19 @@ public class DynamicBeanImplTest
         model.setNumberOfChildren(NUMBER_OF_CHILDREN_VALUE);
         model.setIncomingYear(INCOMING_YEAR_VALUE);
         model.setGender(GENDER_VALUE);
+	}
+	/**
+	 * Check a model if properties are the reference values as assigned in {@link #assignValues(IModel)}.
+	 * @param model The model to check
+	 */
+	private void checkReferencesValues(IModel model)
+	{
+        Assert.assertEquals(model.getId(),ID_VALUE);
+        Assert.assertEquals(model.getName(),NAME_VALUE);
+        Assert.assertEquals(model.getLasName(), LAST_NAME_VALUE);
+        Assert.assertEquals(model.getBirthDate(),BIRTHDATE_VALUE);
+        Assert.assertEquals(model.getNumberOfChildren(),NUMBER_OF_CHILDREN_VALUE);
+        Assert.assertEquals(model.getIncomingYear(),INCOMING_YEAR_VALUE);
+        Assert.assertEquals(model.getGender(),GENDER_VALUE);
 	}
 }

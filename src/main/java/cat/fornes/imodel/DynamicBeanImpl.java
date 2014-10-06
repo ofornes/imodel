@@ -119,14 +119,66 @@ class DynamicBeanImpl<T> implements InvocationHandler, Serializable
         // Assign default values
         for(DynamicBeanImplementationInfo<T>.PropertyBeanDescriptor pbv : beanImplementationInfo.getPropertyBeanDescriptors().values())
         {
-            values.put(pbv.getName(), nullSafeValue(null, pbv));
+            assignDefaultValue(pbv);
+        }
+    }
+    /**
+     * Assign default value for property.
+     * @param pbv The property descriptor
+     */
+    private void assignDefaultValue(DynamicBeanImplementationInfo<T>.PropertyBeanDescriptor pbv)
+    {
+        if(pbv.isPrimitive())
+        {
+            if(pbv.getDefaultValue() != null)
+            {
+                values.put(pbv.getName(), pbv.getDefaultValue());
+            }
+            else
+            {
+                values.put(pbv.getName(), nullSafeValue(null, pbv));
+            }
+        }
+        else
+        {
+            if(pbv.isDynamicBean())
+            {
+                // Check for not-null
+                if(pbv.getDefaultValue() != null)
+                {
+                    // Instantiate
+                    values.put(pbv.getName(), dynamicBeanFactory.instantiateBean(pbv.getPropertyType()));
+                }
+            }
+            else
+            {
+                if(pbv.getDefaultImplementationValue() != null && pbv.getDefaultValue() != null)
+                {
+                    try
+                    {
+                        values.put(pbv.getName(),pbv.getDefaultImplementationValue().newInstance());
+                    }
+                    catch(InstantiationException | IllegalAccessException e)
+                    {
+                        throw new RuntimeException(String.format("On instantiate the default value (%s) for property %s of type %s"
+                                ,pbv.getDefaultImplementationValue().getName()
+                                , pbv.getName()
+                                , beanImplementationInfo.getImplementedType().getName())
+                                ,e);
+                    }
+                }
+                else
+                {
+                    values.put(pbv.getName(), nullSafeValue(null, pbv));
+                }
+            }
         }
     }
     /**
      * The implemented type.
      * @return The implemented type
      */
-    public Class<T> getImplementedType()
+    Class<T> getImplementedType()
     {
         return beanImplementationInfo.getImplementedType();
     }
@@ -368,39 +420,39 @@ class DynamicBeanImpl<T> implements InvocationHandler, Serializable
         {
             return value;
         }
-        if(pb.getGetterMethod().getReturnType().getName().equals("byte"))
+        if(pb.getPropertyType().getName().equals("byte"))
         {
             return (value == null ? Byte.valueOf((byte) 0) : (Byte) value);
         }
-        if(pb.getGetterMethod().getReturnType().getName().equals("short"))
+        if(pb.getPropertyType().getName().equals("short"))
         {
             return (value == null ? Short.valueOf((short) 0) : (Short) value);
         }
-        if(pb.getGetterMethod().getReturnType().getName().equals("int"))
+        if(pb.getPropertyType().getName().equals("int"))
         {
             return (value == null ? Integer.valueOf(0) : (Integer) value);
         }
-        if(pb.getGetterMethod().getReturnType().getName().equals("long"))
+        if(pb.getPropertyType().getName().equals("long"))
         {
             return (value == null ? Long.valueOf(0L) : (Long) value);
         }
-        if(pb.getGetterMethod().getReturnType().getName().equals("float"))
+        if(pb.getPropertyType().getName().equals("float"))
         {
             return (value == null ? Float.valueOf(0F) : (Float) value);
         }
-        if(pb.getGetterMethod().getReturnType().getName().equals("double"))
+        if(pb.getPropertyType().getName().equals("double"))
         {
             return (value == null ? Double.valueOf(0D) : (Double) value);
         }
-        if(pb.getGetterMethod().getReturnType().getName().equals("char"))
+        if(pb.getPropertyType().getName().equals("char"))
         {
             return (value == null ? Character.valueOf('\u0000') : (Character) value);
         }
-        if(pb.getGetterMethod().getReturnType().getName().equals("boolean"))
+        if(pb.getPropertyType().getName().equals("boolean"))
         {
             return (value == null ? Boolean.FALSE : (Boolean) value);
         }
-        if(pb.getGetterMethod().getReturnType().getSimpleName().equals("String"))
+        if(pb.getPropertyType().getSimpleName().equals("String"))
         {
             return value;
         }
@@ -409,7 +461,7 @@ class DynamicBeanImpl<T> implements InvocationHandler, Serializable
                 , beanImplementationInfo.getImplementedType().getName()
                 , pb));
         // Unknown??
-        throw new IllegalArgumentException("No handler found for type '" + pb.getGetterMethod().getReturnType().getSimpleName() + "'.");
+        throw new IllegalArgumentException("No handler found for type '" + pb.getPropertyType().getSimpleName() + "'.");
     }
 
     /**
@@ -456,7 +508,7 @@ class DynamicBeanImpl<T> implements InvocationHandler, Serializable
      */
     private Object cloneValue(DynamicBeanImplementationInfo<T>.PropertyBeanDescriptor propertyBeanDescriptor, Object value)
     {
-        Method clonem;
+        Method cloneMethod;
 
         if(propertyBeanDescriptor.isPrimitive() || value == null)
         {
@@ -464,8 +516,8 @@ class DynamicBeanImpl<T> implements InvocationHandler, Serializable
         }
         try
         {
-            clonem = propertyBeanDescriptor.getGetterMethod().getReturnType().getMethod("clone");
-            return (Object)clonem.invoke(value);
+            cloneMethod = propertyBeanDescriptor.getPropertyType().getMethod("clone");
+            return (Object)cloneMethod.invoke(value);
         }
         catch(NoSuchMethodException e)
         {

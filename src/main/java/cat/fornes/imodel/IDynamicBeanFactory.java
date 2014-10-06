@@ -36,6 +36,15 @@ public interface IDynamicBeanFactory
     public abstract <T> T instantiateBean(Class<T> typeToImplement);
 
     /**
+     * Instantiate a dynamic bean implementation of the indicated interface type and try to copy properties from source.
+     * This is a method to enable the instantiation with partial clone properties. The source should to implement any of the
+     * interfaces that <code>typeToImplement</code> derives.
+     * @param typeToImplement The interface class to implement; cannot be null and should to be an interface
+     * @param source An object instance (can be a DynamicBean) that implement any interface derived by <code>typeToImplement</code>. If null, none are made and no exception is thrown.
+     * @return The instantiated dynamic bean
+     */
+    public abstract <T> T instantiateBeanPartialyCloned(Class<T> typeToImplement, Object source);
+    /**
      * Clone a dynamicBean.
      * @param dynamicBean The dynamicBean to clone
      * @return The newly cloned dynamic bean

@@ -19,6 +19,8 @@
 package cat.fornes.imodel;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Collections;
 import java.util.Comparator;
@@ -34,6 +36,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import cat.fornes.imodel.annotations.DelegateMethodDispatcher;
+import cat.fornes.imodel.support.DynamicBeanUtils;
 import cat.fornes.imodel.support.IDelegateMethodDispatcher;
 
 /**
@@ -179,6 +182,61 @@ public class ConfigurableDynamicBeanFactory implements IDynamicBeanFactory
         }
         return (T)Proxy.newProxyInstance(typeToImplement.getClassLoader()
                , new Class[] {typeToImplement}, new DynamicBeanImpl<T>(this, metadata,dispatchers));
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> T instantiateBeanPartialyCloned(Class<T> typeToImplement, Object source)
+    {
+        T dynbean;
+        
+        dynbean = instantiateBean(typeToImplement);
+        if(source != null)
+        {
+            // Search for interface coincidences and copy from source to newly created dynbean
+            for(Class<?> iFace: source.getClass().getInterfaces())
+            {
+                if(iFace.isAssignableFrom(typeToImplement))
+                {
+                    copyFromOrigin(dynbean, source, iFace);
+                }
+            }
+        }
+        return dynbean;
+    }
+    /**
+     * Copy the properties of source to destination as indicated by iface.
+     * @param destination The destination object, should to implement the interface
+     * @param source The source object, should to implement the interface
+     * @param iface The interface used to get the properties to copy
+     */
+    private <T> void copyFromOrigin(Object destination, Object source, Class<T> iface)
+    {
+        Method s;
+        
+        for(Method g: iface.getMethods())
+        {
+            if(DynamicBeanUtils.isGetter(g.getName()))
+            {
+                // Check for setter
+                s = DynamicBeanUtils.getSetterMethodForGetterMethod(g);
+                // read-only?
+                if(s != null)
+                {
+                    try
+                    {
+                        s.invoke(destination, g.invoke(source));
+                    }
+                    catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+                    {
+                        logger.error(String.format("On partial copy from '%s' to '%s' (as interface %s)",destination,source,iface.getName()),e);
+                        throw new RuntimeException(String.format("On partial copy from '%s' to '%s' (as interface %s)",destination,source,iface.getName()),e);
+                    }
+                }
+            }
+        }
     }
     /**
      * {@inheritDoc}

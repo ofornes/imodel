@@ -25,13 +25,18 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicates a non null value for object properties.
+ * Indicates a default implementation class for object properties.
  * @author Octavi Fornés <a href="mailto:ofornes@albirar.cat">ofornes@albirar.cat</a>
  * @since 1.1.0
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface NonNullDefaultValue
+public @interface DefaultImplementation
 {
+    /**
+     * The default implementation class for property.
+     * @return The class default implementation
+     */
+    Class<?> defaultImplementation();
 }
