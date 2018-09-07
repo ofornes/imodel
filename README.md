@@ -1,7 +1,7 @@
 IModel
 ======
 
-A little framework of utilities for beans dynamic implementations.
+A little framework of utilities for dynamic beans implementations.
 
 Enables data definition as JavaBean applying the "facade pattern".
 
