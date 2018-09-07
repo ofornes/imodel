@@ -1,5 +1,6 @@
 IModel
 ======
+[![Build Status](https://travis-ci.org/ofornes/imodel.svg?branch=master)](https://travis-ci.org/ofornes/imodel)
 
 A little framework of utilities for dynamic beans implementations.
 
